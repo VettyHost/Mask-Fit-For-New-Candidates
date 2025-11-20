@@ -16,7 +16,8 @@
                         'light-gray': '#f4f4f5',
                         'text-gray': '#71717a',
                         'check-green': '#34d399', /* Tailwind green-400 */
-                        'check-orange': '#fb923c', /* Tailwind orange-400 (for warning/info) */
+                        'check-orange': '#fb923c', /* Tailwind orange-400 */
+                        'bg-blue-soft': '#f0f6ff',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -26,9 +27,18 @@
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
-        /* Modal Tab Styling */
+        /* General Transitions */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tab & Modal Styles */
         .tab-indicator {
             position: absolute;
             bottom: -2px;
@@ -41,8 +51,6 @@
         .tab-active .tab-indicator {
             background-color: #2563eb;
         }
-        
-        /* Check Code List Item Styling */
         .check-item { 
             cursor: pointer;
             transition: background-color 0.1s;
@@ -51,7 +59,7 @@
             background-color: #f0f0f5;
         }
         
-        /* Custom Radio Button Styles (for single selection) */
+        /* Custom Radio Button */
         .custom-radio {
             width: 1.25rem;
             height: 1.25rem;
@@ -79,40 +87,37 @@
             opacity: 1;
         }
         
-        /* Main Layout Wrapper - Adjusted for exact screenshot look */
+        /* Layout Wrapper */
         .main-content-wrapper {
-            max-width: 900px; /* Adjusted width */
+            max-width: 1000px;
             width: 100%;
         }
 
-        /* Check List Icons */
-        .check-icon {
-            width: 1.25rem;
-            height: 1.25rem;
+        /* Accordion Styles */
+        .accordion-header {
+            cursor: pointer;
+            user-select: none;
         }
-
-        /* Check List Item styling */
-        .check-list-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 0;
-            font-size: 0.875rem; /* text-sm */
-            font-weight: 500; /* medium */
-            color: #4b5563; /* gray-700 */
+        .accordion-content {
+            transition: max-height 0.3s ease-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+        .accordion-content.open {
+            max-height: 500px; /* Arbitrary large height */
         }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start py-8 px-4 font-sans">
 
-    <!-- Main Page Content Simulation -->
-    <div id="main-content" class="bg-white p-8 rounded-xl shadow-lg main-content-wrapper mb-8">
+    <!-- VIEW 1: Select A Package -->
+    <div id="view-package-select" class="bg-white p-8 rounded-xl shadow-lg main-content-wrapper mb-8 fade-in">
         <h1 class="text-2xl font-bold mb-6 text-gray-800">Select A Package</h1>
 
-        <!-- Top Package Details (Department, Location, Package, Uniq Id) -->
+        <!-- Package Details -->
         <div class="grid grid-cols-2 gap-x-6 gap-y-4 mb-8">
             <div class="relative">
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Department*</label>
-                <!-- Styled to look like a dropdown input with an indicator -->
                 <div class="relative">
                     <input type="text" value="Talent Acquisition" readonly class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-gray-800 pr-8">
                     <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
@@ -138,12 +143,10 @@
             </div>
         </div>
 
-        <!-- Two-Column Layout for Check Lists and Details -->
+        <!-- Main Layout: Checks & Details -->
         <div class="grid grid-cols-1 md:grid-cols-12 gap-x-8">
-            
-            <!-- Left Column: Check List (Vertical Nav - Approx. 4/12 width) -->
+            <!-- Left Column: Check List -->
             <div class="md:col-span-4 border-r pr-6 mb-6 md:mb-0">
-                <!-- Modify Button (Aligned under package details section) -->
                 <button id="modify-button" class="px-6 py-2 bg-primary-blue text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 flex items-center mb-6">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-3.314 3.314l-4.707 4.707-1.414 1.414 4.707 4.707 1.414-1.414 4.707-4.707-1.414-1.414-4.707 4.707zm-2 2a1 1 0 100-2 1 1 0 000 2z" />
@@ -151,62 +154,46 @@
                     Modify
                 </button>
 
-                <!-- Check Items (Fixed List matching the vertical nav in screenshot) -->
                 <div id="check-list-nav" class="space-y-1">
-                    <div class="check-list-item">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="check-icon text-check-green mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                        </svg>
+                    <div class="flex items-center py-2 text-sm font-medium text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-check-green mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
                         <span>Identity</span>
                     </div>
-                    <div class="check-list-item">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="check-icon text-check-green mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                        </svg>
+                    <div class="flex items-center py-2 text-sm font-medium text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-check-green mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
                         <span>Basic Criminal</span>
                     </div>
-                    <div class="check-list-item">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="check-icon text-check-green mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                        </svg>
+                    <div class="flex items-center py-2 text-sm font-medium text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-check-green mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
                         <span>Advanced Criminal</span>
                     </div>
-                    <div id="check-item-health-screening" class="check-list-item">
-                        <!-- Placeholder icon for Health Screening (yellow/orange info icon from screenshot) -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="check-icon text-check-orange mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                        </svg>
+                    <div id="check-item-health-screening" class="flex items-center py-2 text-sm font-medium text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-check-orange mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
                         <span>Health Screening</span>
                     </div>
-                    <!-- Mask Fit (Dynamically added if selected) -->
-                    <div id="check-item-maskfit" class="check-list-item hidden">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="check-icon text-check-green mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                        </svg>
+                    <div id="check-item-maskfit" class="flex items-center py-2 text-sm font-medium text-gray-600 hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-check-green mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
                         <span>Mask Fit</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column: Detailed Check Sections (Approx. 8/12 width) -->
+            <!-- Right Column: Details -->
             <div class="md:col-span-8">
                 <div class="space-y-4">
-                    <!-- Identity Section -->
                     <div class="border-b pb-2">
                         <h3 class="text-lg font-bold text-gray-800">Identity</h3>
                         <p class="text-sm text-text-gray mt-1">Checks Included <span class="float-right text-xs text-text-gray">Renewal</span></p>
                     </div>
-                    <!-- Basic Criminal Section -->
                     <div class="border-b pb-2">
                         <h3 class="text-lg font-bold text-gray-800">Basic Criminal</h3>
                         <p class="text-sm text-text-gray mt-1">Checks Included <span class="float-right text-xs text-text-gray">Renewal</span></p>
                     </div>
-                    <!-- Advanced Criminal Section -->
                     <div class="border-b pb-2">
                         <h3 class="text-lg font-bold text-gray-800">Advanced Criminal</h3>
                         <p class="text-sm text-text-gray mt-1">Checks Included <span class="float-right text-xs text-text-gray">Renewal</span></p>
                     </div>
-                    <!-- Dynamic Mask Fit Display Section -->
+                    <!-- Mask Fit Detail -->
                     <div id="mask-fit-check-detail" class="hidden border-b pb-2">
                         <h3 class="text-lg font-bold text-primary-blue">Mask Fit</h3>
                         <p id="mask-fit-checkcode-detail" class="text-sm text-gray-700 mt-1">
@@ -217,25 +204,145 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Total Package and Action Buttons (Aligned to match screenshot) -->
+
+        <!-- Total & Main Action Buttons -->
         <div class="flex justify-between items-end pt-4 mt-8 border-t">
             <div>
-                <!-- Total Package Text (Updated to match screenshot) -->
                 <div class="text-lg font-bold text-gray-800">Total Package: $25.30</div>
                 <p class="text-xs text-text-gray mt-1">*Package Cost Does Not Include Pass-Through, Health Screening Fees, And Taxes.</p>
             </div>
-            
             <div class="flex space-x-3">
-                <!-- Main page action buttons -->
                 <button class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition duration-150">Cancel</button>
-                <button class="px-6 py-2 bg-gray-300 text-white font-semibold rounded-lg cursor-not-allowed" disabled>Next ></button>
+                <!-- Main Page NEXT button (initially disabled, enables on modify) -->
+                <button id="main-page-next-btn" class="px-6 py-2 bg-gray-300 text-white font-semibold rounded-lg cursor-not-allowed transition duration-150" disabled>Next ></button>
             </div>
         </div>
     </div>
 
 
-    <!-- The Modal (Hidden by Default) -->
+    <!-- VIEW 2: Additional Information Needed (Initially Hidden) -->
+    <div id="view-additional-info" class="hidden bg-white p-8 rounded-xl shadow-lg main-content-wrapper mb-8 fade-in">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Additional Information Needed</h1>
+
+        <!-- Existing Accordions (Mocked) -->
+        <div class="space-y-4 mb-8">
+            <!-- County Criminal -->
+            <div class="border rounded-lg bg-gray-50">
+                <div class="flex justify-between items-center p-4 cursor-pointer bg-gray-50 rounded-lg">
+                    <span class="font-bold text-gray-700">County Criminal</span>
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-check-green" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                        <span class="text-gray-500 text-lg font-bold">+</span>
+                    </div>
+                </div>
+            </div>
+            <!-- National Criminal -->
+            <div class="border rounded-lg bg-gray-50">
+                <div class="flex justify-between items-center p-4 cursor-pointer">
+                    <span class="font-bold text-gray-700">National Criminal</span>
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-check-green" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                        <span class="text-gray-500 text-lg font-bold">+</span>
+                    </div>
+                </div>
+            </div>
+            <!-- State Criminal -->
+            <div class="border rounded-lg bg-gray-50">
+                <div class="flex justify-between items-center p-4 cursor-pointer">
+                    <span class="font-bold text-gray-700">State Criminal</span>
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-check-green" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                        <span class="text-gray-500 text-lg font-bold">+</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Address Section -->
+        <div class="border rounded-lg bg-white p-6 shadow-sm mb-8 border-gray-200">
+             <div class="flex justify-between items-center mb-4">
+                <span class="font-bold text-gray-800">Add Additional Addresses For County And State Criminal Searches</span>
+                 <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-check-green" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                    <span class="text-gray-500 text-lg font-bold">-</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-12 gap-4 items-end">
+                <div class="col-span-4">
+                    <label class="block text-xs font-medium text-gray-500 mb-1">City/County</label>
+                    <select class="w-full border border-gray-300 rounded-md p-2 text-sm bg-white"><option>Select</option></select>
+                </div>
+                <div class="col-span-4">
+                    <label class="block text-xs font-medium text-gray-500 mb-1">State</label>
+                    <select class="w-full border border-gray-300 rounded-md p-2 text-sm bg-white"><option>Select State</option></select>
+                </div>
+                 <div class="col-span-3">
+                    <label class="block text-xs font-medium text-gray-500 mb-1">City/County (Manual)</label>
+                    <input type="text" placeholder="Enter" class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                </div>
+                <div class="col-span-1">
+                    <button class="w-full bg-primary-blue text-white text-sm font-semibold py-2 rounded-md hover:bg-blue-600">Add</button>
+                </div>
+            </div>
+            <div class="mt-4 min-h-[100px] border border-dashed border-gray-300 rounded-lg bg-gray-50 flex flex-col items-center justify-center text-gray-400">
+                 <p class="text-sm">Added Counties will appear here</p>
+            </div>
+        </div>
+
+        <!-- DYNAMIC MASK FIT SECTION -->
+        <div id="additional-mask-fit-section" class="hidden border rounded-lg bg-white p-6 shadow-sm border-primary-blue ring-1 ring-primary-blue/30">
+             <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-gray-800 text-lg">Additional Mask Fit Information</span>
+                    <span class="bg-blue-100 text-primary-blue text-xs font-semibold px-2 py-0.5 rounded-full">Required</span>
+                </div>
+            </div>
+            
+            <!-- Grid for inputs -->
+            <div class="grid grid-cols-12 gap-4 items-start">
+                <!-- Category Column -->
+                <div class="col-span-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+                    <select class="w-full border border-gray-300 rounded-md p-2.5 text-sm bg-white focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-shadow">
+                        <option value="kits">Maskfit Kits</option>
+                        <option value="drugs">Onsite Drugs</option>
+                    </select>
+                </div>
+
+                <!-- Product Name Column (Check Codes) -->
+                <div class="col-span-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Product Name (Check Code)</label>
+                    <select id="mask-fit-product-select" class="w-full border border-gray-300 rounded-md p-2.5 text-sm bg-white focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-shadow">
+                        <!-- Populated via JS -->
+                    </select>
+                </div>
+
+                <!-- Units Column -->
+                <div class="col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Units</label>
+                    <input type="number" value="1" min="1" class="w-full border border-gray-300 rounded-md p-2.5 text-sm focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-shadow text-center">
+                </div>
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+                <button class="text-primary-blue text-sm font-semibold hover:underline">+ Add Another Product</button>
+            </div>
+        </div>
+
+        <!-- View 2 Footer -->
+        <div class="flex justify-end space-x-3 mt-8 pt-4 border-t">
+            <button class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-150">Cancel</button>
+            <button id="back-to-view-1" class="px-6 py-2 bg-primary-blue text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-150">
+                < Back
+            </button>
+            <button class="px-6 py-2 bg-primary-blue text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-150">
+                Submit
+            </button>
+        </div>
+    </div>
+
+
+    <!-- MODAL (Hidden by Default) -->
     <div id="request-checks-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl transform transition-all duration-300 scale-95 opacity-0" id="modal-content-container">
             <!-- Header -->
@@ -250,49 +357,39 @@
 
             <!-- Tab Navigation -->
             <div class="flex border-b text-sm font-medium text-text-gray px-6">
-                <button id="tab-background" data-tab="background" class="tab-button relative py-3 px-4 hover:text-primary-blue transition duration-150">
-                    Background Screening
-                    <div class="tab-indicator"></div>
-                </button>
-                <button id="tab-health" data-tab="health" class="tab-button relative py-3 px-4 hover:text-primary-blue transition duration-150">
-                    Health Screening
-                    <div class="tab-indicator"></div>
-                </button>
-                <button id="tab-maskfit" data-tab="maskfit" class="tab-button relative py-3 px-4 hover:text-primary-blue transition duration-150 tab-active text-primary-blue">
-                    Mask Fit
-                    <div class="tab-indicator"></div>
-                </button>
+                <button id="tab-background" data-tab="background" class="tab-button relative py-3 px-4 hover:text-primary-blue transition duration-150">Background Screening<div class="tab-indicator"></div></button>
+                <button id="tab-health" data-tab="health" class="tab-button relative py-3 px-4 hover:text-primary-blue transition duration-150">Health Screening<div class="tab-indicator"></div></button>
+                <button id="tab-maskfit" data-tab="maskfit" class="tab-button relative py-3 px-4 hover:text-primary-blue transition duration-150 tab-active text-primary-blue">Mask Fit<div class="tab-indicator"></div></button>
             </div>
 
             <!-- Tab Content -->
-            <div id="tab-content" class="p-6 overflow-y-auto max-h-[60vh]">
-                <!-- Content will be rendered here by JavaScript -->
-            </div>
+            <div id="tab-content" class="p-6 overflow-y-auto max-h-[60vh]"></div>
 
             <!-- Footer -->
             <div class="p-4 border-t bg-light-gray flex justify-end space-x-3 rounded-b-xl">
                 <button id="modal-cancel-button" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition duration-150">Cancel</button>
-                <!-- Next Button: Initially disabled, logic controlled by JS -->
                 <button id="modal-next-button" class="px-6 py-2 bg-gray-300 text-white font-semibold rounded-lg cursor-not-allowed transition duration-150 hover:bg-blue-700">Next ></button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- Configuration and State ---
-        const checkCodes = [
-            '3M 1860',
-            '3M 1860 SMALL',
-            '3M 1870+',
-            '3M 8210',
-            'HAYLARD REGULAR 46727',
-            'HAYLARD SMALL 46827'
-        ];
+        // --- Data ---
+        const checkCodes = ['3M 1860', '3M 1860 SMALL', '3M 1870+', '3M 8210', 'HAYLARD REGULAR 46727', 'HAYLARD SMALL 46827'];
+        
+        // --- State ---
+        let activeTab = 'maskfit';
+        let selectedCheckCode = null; // Can be null or string
 
-        let activeTab = 'maskfit'; // Start on Mask Fit tab
-        let selectedCheckCode = null; // Stores the single selected code (string or null)
+        // --- Elements ---
+        // Views
+        const viewPackageSelect = document.getElementById('view-package-select');
+        const viewAdditionalInfo = document.getElementById('view-additional-info');
+        const additionalMaskFitSection = document.getElementById('additional-mask-fit-section');
+        const mainPageNextBtn = document.getElementById('main-page-next-btn');
+        const backToView1Btn = document.getElementById('back-to-view-1');
 
-        // --- DOM Elements ---
+        // Modal
         const modal = document.getElementById('request-checks-modal');
         const modalContainer = document.getElementById('modal-content-container');
         const modifyButton = document.getElementById('modify-button');
@@ -302,210 +399,168 @@
         const tabContent = document.getElementById('tab-content');
         const tabButtons = document.querySelectorAll('.tab-button');
         
-        // Main UI elements for updates
+        // Main Page Indicators
         const checkItemMaskFit = document.getElementById('check-item-maskfit');
         const maskFitCheckDetail = document.getElementById('mask-fit-check-detail');
         const maskFitCheckcodeDetail = document.getElementById('mask-fit-checkcode-detail');
+        const maskFitProductSelect = document.getElementById('mask-fit-product-select');
 
-        // --- Functions ---
+        // --- Initialization ---
+        function init() {
+            // Populate View 2 Dropdown with check codes
+            maskFitProductSelect.innerHTML = checkCodes.map(code => `<option value="${code}">${code}</option>`).join('');
+        }
 
-        // 1. Modal Control
+        // --- Modal Logic ---
         function openModal() {
             modal.classList.remove('hidden');
-            // Animate in
-            setTimeout(() => {
-                modalContainer.classList.remove('scale-95', 'opacity-0');
-            }, 10);
-            renderUI();
+            setTimeout(() => modalContainer.classList.remove('scale-95', 'opacity-0'), 10);
+            renderModalUI();
         }
-
         function closeModal() {
-            // Animate out
             modalContainer.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
-
-        // 2. State Update and Rendering
-        function updateNextButton() {
-            // FIX: Button is ENABLED if on Mask Fit tab, even if selection is null (to allow removal).
-            // For other tabs (mocks), we might keep it disabled or enabled based on requirements, 
-            // but for Mask Fit, we always allow "Next" to confirm current state (selected or deselected).
-            const isNextEnabled = activeTab === 'maskfit'; 
-            
-            modalNextButton.disabled = !isNextEnabled;
-            modalNextButton.classList.toggle('bg-gray-300', !isNextEnabled);
-            modalNextButton.classList.toggle('cursor-not-allowed', !isNextEnabled);
-            modalNextButton.classList.toggle('bg-primary-blue', isNextEnabled);
-            // Hover effect only if enabled
-            if (isNextEnabled) {
-                 modalNextButton.classList.add('hover:bg-blue-700');
-            } else {
-                 modalNextButton.classList.remove('hover:bg-blue-700');
-            }
-        }
-
+        
         function handleTabClick(tabName) {
             activeTab = tabName;
-            renderUI();
+            renderModalUI();
         }
-
-        // Logic for single-select with deselect on re-click
+        
         function handleCheckCodeClick(code) {
-            if (selectedCheckCode === code) {
-                // Deselect: If the currently selected code is clicked again, set to null
-                selectedCheckCode = null;
-            } else {
-                // Select: Set the new code
-                selectedCheckCode = code;
-            }
-            renderTabContent(); // Re-render content (radio buttons)
-            updateNextButton(); // Update button (will stay enabled on Mask Fit tab)
+            if (selectedCheckCode === code) selectedCheckCode = null; // Deselect
+            else selectedCheckCode = code; // Select
+            renderTabContent();
+            updateModalNextButton();
+        }
+        
+        function updateModalNextButton() {
+            // Always enabled on Mask Fit tab to allow confirming deselection
+            const isEnabled = activeTab === 'maskfit';
+            modalNextButton.disabled = !isEnabled;
+            modalNextButton.classList.toggle('bg-gray-300', !isEnabled);
+            modalNextButton.classList.toggle('cursor-not-allowed', !isEnabled);
+            modalNextButton.classList.toggle('bg-primary-blue', isEnabled);
+            if(isEnabled) modalNextButton.classList.add('hover:bg-blue-700');
+            else modalNextButton.classList.remove('hover:bg-blue-700');
         }
 
-        function renderTabNavigation() {
-            tabButtons.forEach(button => {
-                const tab = button.getAttribute('data-tab');
-                const isActive = tab === activeTab;
-                button.classList.toggle('tab-active', isActive);
-                button.classList.toggle('text-primary-blue', isActive);
-                button.classList.toggle('text-text-gray', !isActive);
+        function renderModalUI() {
+            // Update Tab Styling
+            tabButtons.forEach(btn => {
+                const isActive = btn.getAttribute('data-tab') === activeTab;
+                btn.classList.toggle('tab-active', isActive);
+                btn.classList.toggle('text-primary-blue', isActive);
+                btn.classList.toggle('text-text-gray', !isActive);
             });
+            renderTabContent();
+            updateModalNextButton();
         }
 
         function renderTabContent() {
-            tabContent.innerHTML = ''; // Clear previous content
-
+            tabContent.innerHTML = '';
             if (activeTab === 'maskfit') {
-                let maskFitHTML = `
-                    <div class="text-xl font-bold text-gray-800 mb-4">Select A Product Checkcode</div>
-                    <div class="space-y-2">
-                `;
-
+                let html = `<div class="text-xl font-bold text-gray-800 mb-4">Select A Product Checkcode</div><div class="space-y-2">`;
                 checkCodes.forEach(code => {
                     const isChecked = selectedCheckCode === code;
-                    maskFitHTML += `
+                    html += `
                         <div data-code="${code}" class="check-item p-3 border rounded-lg flex items-center justify-between transition duration-100 ${isChecked ? 'border-primary-blue bg-blue-50' : 'border-gray-200'}">
-                            <!-- Custom Radio Button (Prefix) -->
-                            <div class="custom-radio ${isChecked ? 'checked' : ''} mr-3">
-                                <div class="custom-radio-inner"></div>
-                            </div>
-                            <div class="flex-grow">
-                                <span class="font-medium text-gray-700">${code}</span>
-                            </div>
-                        </div>
-                    `;
+                            <div class="custom-radio ${isChecked ? 'checked' : ''} mr-3"><div class="custom-radio-inner"></div></div>
+                            <div class="flex-grow"><span class="font-medium text-gray-700">${code}</span></div>
+                        </div>`;
                 });
-
-                maskFitHTML += '</div>';
-                tabContent.innerHTML = maskFitHTML;
-
-                // Add event listeners to the dynamically created items
-                document.querySelectorAll('.check-item').forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        const code = item.getAttribute('data-code');
-                        handleCheckCodeClick(code);
-                    });
+                html += '</div>';
+                tabContent.innerHTML = html;
+                document.querySelectorAll('.check-item').forEach(el => {
+                    el.addEventListener('click', () => handleCheckCodeClick(el.getAttribute('data-code')));
                 });
-
             } else {
-                // Mock content for other tabs
-                tabContent.innerHTML = `
-                    <h3 class="text-lg font-semibold mb-2">${activeTab.split('').map((c, i) => i === 0 ? c.toUpperCase() : c).join('')} Screening Details</h3>
-                    <p class="text-text-gray">This area would contain the specific selection options and configuration fields for ${activeTab.replace('-', ' ')}.</p>
-                    <div class="mt-4 p-4 border rounded-lg bg-gray-50 text-sm text-text-gray">
-                        Mock Content: Options for the selected package checks go here.
-                    </div>
-                `;
+                tabContent.innerHTML = `<div class="p-4 bg-gray-50 rounded text-gray-500">Mock content for ${activeTab}</div>`;
             }
         }
 
-        function renderUI() {
-            renderTabNavigation();
-            renderTabContent();
-            updateNextButton();
-        }
-
-        // 3. Final Step Simulation (Update main page summary)
-        function simulatePackageUpdate() {
-            const mainContent = document.getElementById('main-content');
-            
+        // --- Main Page Update Logic ---
+        function updateMainPage() {
+            // 1. Update Indicators
             if (selectedCheckCode) {
-                // A code is selected: ADD/UPDATE the Mask Fit details
-                
-                // 1. Update Left Check List (Make Mask Fit visible)
                 checkItemMaskFit.classList.remove('hidden');
-                
-                // 2. Update Right Detail Section (Show selected checkcode)
                 maskFitCheckDetail.classList.remove('hidden');
-                maskFitCheckDetail.querySelector('h3').textContent = 'Mask Fit'; 
-                maskFitCheckcodeDetail.innerHTML = `
-                    Checkcode: <span class="font-semibold text-primary-blue">${selectedCheckCode}</span>
-                    <span class="float-right text-xs text-text-gray">Renewal</span>
-                `;
+                maskFitCheckcodeDetail.innerHTML = `Checkcode: <span class="font-semibold text-primary-blue">${selectedCheckCode}</span><span class="float-right text-xs text-text-gray">Renewal</span>`;
                 
-                // 3. Show success message
-                showSuccessMessage('Package updated successfully with Mask Fit Checkcode!');
-
+                // Update View 2 Dropdown to match selection
+                maskFitProductSelect.value = selectedCheckCode;
+                
+                showToast('Package updated with Mask Fit!');
             } else {
-                // No code is selected (user deselected the item): REMOVE the Mask Fit details
                 checkItemMaskFit.classList.add('hidden');
                 maskFitCheckDetail.classList.add('hidden');
-                
-                // Show success message for removal
-                showSuccessMessage('Mask Fit details removed from package.');
+                showToast('Mask Fit removed.');
             }
+
+            // 2. Enable Main Page Next Button (Assume enabled if ANY modification happened or just generally enabled after modify flow)
+            mainPageNextBtn.disabled = false;
+            mainPageNextBtn.classList.remove('bg-gray-300', 'cursor-not-allowed');
+            mainPageNextBtn.classList.add('bg-primary-blue', 'hover:bg-blue-700');
+
             closeModal();
         }
-        
-        function showSuccessMessage(msg) {
-            const mainContent = document.getElementById('main-content');
-            let successMessage = document.getElementById('success-message');
+
+        // --- View Navigation ---
+        function showAdditionalInfo() {
+            // Hide View 1
+            viewPackageSelect.classList.add('hidden');
             
-            // Remove existing if any (to reset animation)
-            if (successMessage) successMessage.remove();
+            // Prepare View 2
+            viewAdditionalInfo.classList.remove('hidden');
             
-            successMessage = document.createElement('div');
-            successMessage.id = 'success-message';
-            successMessage.className = 'absolute top-4 right-4 p-4 bg-green-500 text-white font-semibold rounded-lg shadow-xl transition-opacity duration-300';
-            successMessage.textContent = msg;
-            mainContent.style.position = 'relative'; 
-            mainContent.appendChild(successMessage);
+            // Logic: Show Mask Fit Section only if selected
+            if (selectedCheckCode) {
+                additionalMaskFitSection.classList.remove('hidden');
+            } else {
+                additionalMaskFitSection.classList.add('hidden');
+            }
             
-            // Hide the message after a few seconds
-            setTimeout(() => {
-                if (successMessage) {
-                    successMessage.classList.add('opacity-0');
-                    setTimeout(() => successMessage.remove(), 300);
-                }
-            }, 4000);
+            // Scroll to top
+            window.scrollTo(0,0);
+        }
+
+        function showPackageSelect() {
+            viewAdditionalInfo.classList.add('hidden');
+            viewPackageSelect.classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        // --- Helper: Toast ---
+        function showToast(msg) {
+            let toast = document.getElementById('toast');
+            if(toast) toast.remove();
+            toast = document.createElement('div');
+            toast.id = 'toast';
+            toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-xl z-50 fade-in';
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
 
         // --- Event Listeners ---
-
-        // Open Modal
         modifyButton.addEventListener('click', openModal);
-
-        // Close Modal
         closeModalButton.addEventListener('click', closeModal);
         modalCancelButton.addEventListener('click', closeModal);
-
-        // Tab Switching
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => handleTabClick(button.getAttribute('data-tab')));
-        });
+        tabButtons.forEach(btn => btn.addEventListener('click', () => handleTabClick(btn.getAttribute('data-tab'))));
         
-        // Finalize Selection
+        // Modal Next -> Updates Main Page
         modalNextButton.addEventListener('click', () => {
-            // Check tab validity (only Mock Fit is functional for this demo)
-            if (activeTab === 'maskfit') {
-                simulatePackageUpdate();
-            }
+            if(activeTab === 'maskfit') updateMainPage();
         });
 
-        // Initial render on load
-        renderTabNavigation();
+        // Main Page Next -> Goes to View 2
+        mainPageNextBtn.addEventListener('click', showAdditionalInfo);
+
+        // View 2 Back -> Goes to View 1
+        backToView1Btn.addEventListener('click', showPackageSelect);
+
+        // Init
+        init();
 
     </script>
 </body>
