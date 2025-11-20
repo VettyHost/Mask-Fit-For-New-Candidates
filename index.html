@@ -272,7 +272,8 @@
             <!-- Footer -->
             <div class="p-4 border-t bg-light-gray flex justify-end space-x-3 rounded-b-xl">
                 <button id="modal-cancel-button" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition duration-150">Cancel</button>
-                <button id="modal-next-button" class="px-6 py-2 bg-gray-300 text-white font-semibold rounded-lg cursor-not-allowed transition duration-150" disabled>Next ></button>
+                <!-- Next Button: Initially disabled, logic controlled by JS -->
+                <button id="modal-next-button" class="px-6 py-2 bg-gray-300 text-white font-semibold rounded-lg cursor-not-allowed transition duration-150 hover:bg-blue-700">Next ></button>
             </div>
         </div>
     </div>
@@ -328,13 +329,21 @@
 
         // 2. State Update and Rendering
         function updateNextButton() {
-            // Next button is enabled if the Mask Fit tab is active AND a code is selected.
-            const isNextEnabled = activeTab === 'maskfit' && selectedCheckCode !== null;
+            // FIX: Button is ENABLED if on Mask Fit tab, even if selection is null (to allow removal).
+            // For other tabs (mocks), we might keep it disabled or enabled based on requirements, 
+            // but for Mask Fit, we always allow "Next" to confirm current state (selected or deselected).
+            const isNextEnabled = activeTab === 'maskfit'; 
+            
             modalNextButton.disabled = !isNextEnabled;
             modalNextButton.classList.toggle('bg-gray-300', !isNextEnabled);
             modalNextButton.classList.toggle('cursor-not-allowed', !isNextEnabled);
             modalNextButton.classList.toggle('bg-primary-blue', isNextEnabled);
-            modalNextButton.classList.toggle('hover:bg-blue-700', isNextEnabled);
+            // Hover effect only if enabled
+            if (isNextEnabled) {
+                 modalNextButton.classList.add('hover:bg-blue-700');
+            } else {
+                 modalNextButton.classList.remove('hover:bg-blue-700');
+            }
         }
 
         function handleTabClick(tabName) {
@@ -351,8 +360,8 @@
                 // Select: Set the new code
                 selectedCheckCode = code;
             }
-            renderTabContent(); // Re-render the content to show updated radio state
-            updateNextButton(); // Update the Next button state
+            renderTabContent(); // Re-render content (radio buttons)
+            updateNextButton(); // Update button (will stay enabled on Mask Fit tab)
         }
 
         function renderTabNavigation() {
@@ -401,7 +410,7 @@
                 });
 
             } else {
-                // Mock content for other tabs (Background Screening & Health Screening)
+                // Mock content for other tabs
                 tabContent.innerHTML = `
                     <h3 class="text-lg font-semibold mb-2">${activeTab.split('').map((c, i) => i === 0 ? c.toUpperCase() : c).join('')} Screening Details</h3>
                     <p class="text-text-gray">This area would contain the specific selection options and configuration fields for ${activeTab.replace('-', ' ')}.</p>
@@ -423,39 +432,54 @@
             const mainContent = document.getElementById('main-content');
             
             if (selectedCheckCode) {
+                // A code is selected: ADD/UPDATE the Mask Fit details
+                
                 // 1. Update Left Check List (Make Mask Fit visible)
                 checkItemMaskFit.classList.remove('hidden');
                 
                 // 2. Update Right Detail Section (Show selected checkcode)
                 maskFitCheckDetail.classList.remove('hidden');
+                maskFitCheckDetail.querySelector('h3').textContent = 'Mask Fit'; 
                 maskFitCheckcodeDetail.innerHTML = `
                     Checkcode: <span class="font-semibold text-primary-blue">${selectedCheckCode}</span>
                     <span class="float-right text-xs text-text-gray">Renewal</span>
                 `;
                 
-                // 3. Show success message (using the temporary message box)
-                let successMessage = document.getElementById('success-message');
-                if (!successMessage) {
-                    successMessage = document.createElement('div');
-                    successMessage.id = 'success-message';
-                    successMessage.className = 'absolute top-4 right-4 p-4 bg-green-500 text-white font-semibold rounded-lg shadow-xl transition-opacity duration-300';
-                    successMessage.textContent = 'Package updated successfully with Mask Fit Checkcode!';
-                    mainContent.style.position = 'relative'; 
-                    mainContent.appendChild(successMessage);
-                }
-                
-                // Hide the message after a few seconds
-                setTimeout(() => {
-                    successMessage.classList.add('opacity-0');
-                    setTimeout(() => successMessage.remove(), 300);
-                }, 4000);
+                // 3. Show success message
+                showSuccessMessage('Package updated successfully with Mask Fit Checkcode!');
 
             } else {
-                // If no code is selected (user deselected the item)
+                // No code is selected (user deselected the item): REMOVE the Mask Fit details
                 checkItemMaskFit.classList.add('hidden');
                 maskFitCheckDetail.classList.add('hidden');
+                
+                // Show success message for removal
+                showSuccessMessage('Mask Fit details removed from package.');
             }
             closeModal();
+        }
+        
+        function showSuccessMessage(msg) {
+            const mainContent = document.getElementById('main-content');
+            let successMessage = document.getElementById('success-message');
+            
+            // Remove existing if any (to reset animation)
+            if (successMessage) successMessage.remove();
+            
+            successMessage = document.createElement('div');
+            successMessage.id = 'success-message';
+            successMessage.className = 'absolute top-4 right-4 p-4 bg-green-500 text-white font-semibold rounded-lg shadow-xl transition-opacity duration-300';
+            successMessage.textContent = msg;
+            mainContent.style.position = 'relative'; 
+            mainContent.appendChild(successMessage);
+            
+            // Hide the message after a few seconds
+            setTimeout(() => {
+                if (successMessage) {
+                    successMessage.classList.add('opacity-0');
+                    setTimeout(() => successMessage.remove(), 300);
+                }
+            }, 4000);
         }
 
         // --- Event Listeners ---
@@ -474,7 +498,10 @@
         
         // Finalize Selection
         modalNextButton.addEventListener('click', () => {
-            simulatePackageUpdate();
+            // Check tab validity (only Mock Fit is functional for this demo)
+            if (activeTab === 'maskfit') {
+                simulatePackageUpdate();
+            }
         });
 
         // Initial render on load
