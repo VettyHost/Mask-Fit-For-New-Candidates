@@ -12,12 +12,13 @@
             theme: {
                 extend: {
                     colors: {
-                        'primary-blue': '#2563eb',
-                        'light-gray': '#f4f4f5',
-                        'text-gray': '#71717a',
-                        'check-green': '#34d399', /* Tailwind green-400 */
-                        'check-orange': '#fb923c', /* Tailwind orange-400 */
-                        'bg-blue-soft': '#f0f6ff',
+                        'primary-blue': '#2563eb', // Standard Blue
+                        'header-blue': '#1e40af',  // Darker blue for text headers
+                        'input-bg': '#f8fafd',     // Very light blue-gray for inputs
+                        'bar-gray': '#f3f4f6',     // Gray for the detail bars
+                        'text-gray': '#6b7280',
+                        'check-green': '#34d399', 
+                        'check-orange': '#fb923c',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -29,192 +30,182 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
-        /* General Transitions */
-        .fade-in {
-            animation: fadeIn 0.3s ease-in-out;
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Custom Input Style to match screenshot */
+        .custom-input {
+            background-color: #f8fafd; /* Light gray/blue tint */
+            border-color: #e2e8f0;
+            color: #374151;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .custom-input:focus {
+            background-color: #ffffff;
+            border-color: #2563eb;
+            ring: 2px solid #2563eb;
         }
 
         /* Tab & Modal Styles */
-        .tab-indicator {
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background-color: transparent;
-            transition: background-color 0.15s ease-in-out;
-        }
-        .tab-active .tab-indicator {
-            background-color: #2563eb;
-        }
-        .check-item { 
-            cursor: pointer;
-            transition: background-color 0.1s;
-        }
-        .check-item:hover {
-            background-color: #f0f0f5;
-        }
+        .tab-indicator { position: absolute; bottom: -2px; left: 0; width: 100%; height: 3px; background-color: transparent; transition: background-color 0.15s ease-in-out; }
+        .tab-active .tab-indicator { background-color: #2563eb; }
+        .check-item { cursor: pointer; transition: background-color 0.1s; }
+        .check-item:hover { background-color: #f0f0f5; }
         
-        /* Custom Radio Button */
-        .custom-radio {
-            width: 1.25rem;
-            height: 1.25rem;
-            border-radius: 50%;
-            border: 2px solid #a1a1aa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.1s;
-            flex-shrink: 0;
-        }
-        .custom-radio.checked {
-            border-color: #2563eb;
-            background-color: #2563eb;
-        }
-        .custom-radio-inner {
-            width: 0.5rem;
-            height: 0.5rem;
-            border-radius: 50%;
-            background-color: white;
-            opacity: 0;
-            transition: opacity 0.1s;
-        }
-        .custom-radio.checked .custom-radio-inner {
-            opacity: 1;
-        }
+        /* Custom Radio */
+        .custom-radio { width: 1.25rem; height: 1.25rem; border-radius: 50%; border: 2px solid #a1a1aa; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .custom-radio.checked { border-color: #2563eb; background-color: #2563eb; }
+        .custom-radio-inner { width: 0.5rem; height: 0.5rem; border-radius: 50%; background-color: white; opacity: 0; }
+        .custom-radio.checked .custom-radio-inner { opacity: 1; }
         
-        /* Layout Wrapper */
-        .main-content-wrapper {
-            max-width: 1000px;
-            width: 100%;
-        }
+        .main-content-wrapper { max-width: 1100px; width: 100%; }
 
-        /* Accordion Styles */
-        .accordion-header {
-            cursor: pointer;
-            user-select: none;
-        }
-        .accordion-content {
-            transition: max-height 0.3s ease-out;
-            max-height: 0;
-            overflow: hidden;
-        }
-        .accordion-content.open {
-            max-height: 500px; /* Arbitrary large height */
+        /* Shipping Card */
+        .shipping-card {
+            border-left: 5px solid #2563eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start py-8 px-4 font-sans">
+<body class="bg-white min-h-screen flex flex-col items-center justify-start py-8 px-4 font-sans">
 
     <!-- VIEW 1: Select A Package -->
-    <div id="view-package-select" class="bg-white p-8 rounded-xl shadow-lg main-content-wrapper mb-8 fade-in">
-        <h1 class="text-2xl font-bold mb-6 text-gray-800">Select A Package</h1>
+    <div id="view-package-select" class="bg-white p-6 rounded-xl w-full max-w-6xl fade-in">
+        <h1 class="text-xl font-bold mb-6 text-gray-900">Select A Package</h1>
 
-        <!-- Package Details -->
-        <div class="grid grid-cols-2 gap-x-6 gap-y-4 mb-8">
-            <div class="relative">
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Department*</label>
-                <div class="relative">
-                    <input type="text" value="Talent Acquisition" readonly class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-gray-800 pr-8">
-                    <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+        <!-- Package Details Form - Styled with "Grey Touch" -->
+        <div class="grid grid-cols-2 gap-x-12 gap-y-4 mb-8">
+            <!-- Left Side Inputs -->
+            <div class="space-y-4">
+                <div class="grid grid-cols-12 items-center">
+                    <label class="col-span-3 text-sm font-medium text-gray-600">Department*</label>
+                    <div class="col-span-9 relative">
+                        <input type="text" value="" readonly class="custom-input block w-full rounded-md border shadow-sm px-3 py-2 text-sm">
+                        <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    </div>
+                </div>
+                <div class="grid grid-cols-12 items-center">
+                    <label class="col-span-3 text-sm font-medium text-gray-600">Package*</label>
+                    <div class="col-span-9 relative">
+                        <input type="text" value="Federal Criminal Check" readonly class="custom-input block w-full rounded-md border shadow-sm px-3 py-2 text-sm">
+                        <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    </div>
+                </div>
+                <div class="grid grid-cols-12 items-center">
+                    <label class="col-span-3 text-sm font-medium text-gray-600">Uniq Id</label>
+                    <div class="col-span-9">
+                        <input type="text" value="uniq Id" readonly class="custom-input block w-full rounded-md border shadow-sm px-3 py-2 text-sm text-gray-500">
+                    </div>
+                </div>
+                
+                <!-- Modify Button Aligned under inputs -->
+                <div class="grid grid-cols-12">
+                    <div class="col-span-3"></div>
+                    <div class="col-span-9">
+                         <button id="modify-button" class="mt-2 px-6 py-2 bg-primary-blue text-white text-sm font-medium rounded-md shadow hover:bg-blue-700 transition duration-150 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-3.314 3.314l-4.707 4.707-1.414 1.414 4.707 4.707 1.414-1.414 4.707-4.707-1.414-1.414-4.707 4.707zm-2 2a1 1 0 100-2 1 1 0 000 2z" />
+                            </svg>
+                            Modify
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="relative">
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Location*</label>
-                <div class="relative">
-                    <input type="text" value="Pune" readonly class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-gray-800 pr-8">
-                    <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+
+            <!-- Right Side Inputs -->
+            <div class="space-y-4">
+                <div class="grid grid-cols-12 items-center">
+                    <label class="col-span-3 text-sm font-medium text-gray-600 text-right pr-4">Location*</label>
+                    <div class="col-span-9 relative">
+                        <input type="text" value="Pune" readonly class="custom-input block w-full rounded-md border shadow-sm px-3 py-2 text-sm">
+                        <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    </div>
                 </div>
-            </div>
-            <div class="relative col-span-2">
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Package*</label>
-                <div class="relative">
-                    <input type="text" value="National,Ssn,County Crim,State Crim" readonly class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-gray-800 pr-8">
-                    <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                </div>
-            </div>
-            <div class="relative col-span-2">
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Uniq Id</label>
-                <input type="text" value="uniq id" readonly class="block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-gray-800">
             </div>
         </div>
+
+        <!-- Divider -->
+        <div class="border-t border-gray-200 my-6"></div>
 
         <!-- Main Layout: Checks & Details -->
         <div class="grid grid-cols-1 md:grid-cols-12 gap-x-8">
-            <!-- Left Column: Check List -->
-            <div class="md:col-span-4 border-r pr-6 mb-6 md:mb-0">
-                <button id="modify-button" class="px-6 py-2 bg-primary-blue text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 flex items-center mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-3.314 3.314l-4.707 4.707-1.414 1.414 4.707 4.707 1.414-1.414 4.707-4.707-1.414-1.414-4.707 4.707zm-2 2a1 1 0 100-2 1 1 0 000 2z" />
-                    </svg>
-                    Modify
-                </button>
-
-                <div id="check-list-nav" class="space-y-1">
-                    <div class="flex items-center py-2 text-sm font-medium text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-check-green mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Identity</span>
+            <!-- Left Column: Check List Status -->
+            <div class="md:col-span-3 border-r border-gray-200 pr-6">
+                 <div class="space-y-4">
+                    <div class="flex items-center justify-between py-1">
+                        <div class="flex items-center text-sm font-medium text-gray-700">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                             Identity
+                        </div>
+                        <svg class="w-5 h-5 text-check-green" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
                     </div>
-                    <div class="flex items-center py-2 text-sm font-medium text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-check-green mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Basic Criminal</span>
+                    <div class="flex items-center justify-between py-1">
+                        <div class="flex items-center text-sm font-medium text-gray-700">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                             Advanced Criminal
+                        </div>
+                        <svg class="w-5 h-5 text-check-green" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
                     </div>
-                    <div class="flex items-center py-2 text-sm font-medium text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-check-green mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Advanced Criminal</span>
+                     <!-- Mask Shipping Nav Indicator (Hidden by Default) -->
+                    <div id="check-item-mask-shipping" class="flex items-center justify-between py-1 hidden">
+                        <div class="flex items-center text-sm font-medium text-gray-700">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                             Mask Shipping
+                        </div>
+                        <svg class="w-5 h-5 text-check-green" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
                     </div>
-                    <div id="check-item-health-screening" class="flex items-center py-2 text-sm font-medium text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-check-orange mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-                        <span>Health Screening</span>
-                    </div>
-                    <div id="check-item-maskfit" class="flex items-center py-2 text-sm font-medium text-gray-600 hidden">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-check-green mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                        <span>Mask Fit</span>
-                    </div>
-                </div>
+                 </div>
             </div>
 
-            <!-- Right Column: Details -->
-            <div class="md:col-span-8">
-                <div class="space-y-4">
-                    <div class="border-b pb-2">
-                        <h3 class="text-lg font-bold text-gray-800">Identity</h3>
-                        <p class="text-sm text-text-gray mt-1">Checks Included <span class="float-right text-xs text-text-gray">Renewal</span></p>
+            <!-- Right Column: Details (Styled to match screenshot) -->
+            <div class="md:col-span-9 pl-4">
+                <div class="space-y-6">
+                    <!-- Identity Block -->
+                    <div>
+                        <h3 class="text-base font-bold text-primary-blue mb-2">Identity</h3>
+                        <div class="bg-bar-gray rounded p-3 flex justify-between items-center text-sm text-gray-600 font-medium">
+                            <span>Checks Included <span class="text-xs ml-1 align-top text-gray-400">v</span></span>
+                            <span>Renewal</span>
+                        </div>
                     </div>
-                    <div class="border-b pb-2">
-                        <h3 class="text-lg font-bold text-gray-800">Basic Criminal</h3>
-                        <p class="text-sm text-text-gray mt-1">Checks Included <span class="float-right text-xs text-text-gray">Renewal</span></p>
+                    
+                    <!-- Advanced Criminal Block -->
+                    <div>
+                        <h3 class="text-base font-bold text-primary-blue mb-2">Advanced Criminal</h3>
+                        <div class="bg-bar-gray rounded p-3 flex justify-between items-center text-sm text-gray-600 font-medium">
+                            <span>Checks Included <span class="text-xs ml-1 align-top text-gray-400">v</span></span>
+                            <span>Renewal</span>
+                        </div>
                     </div>
-                    <div class="border-b pb-2">
-                        <h3 class="text-lg font-bold text-gray-800">Advanced Criminal</h3>
-                        <p class="text-sm text-text-gray mt-1">Checks Included <span class="float-right text-xs text-text-gray">Renewal</span></p>
-                    </div>
-                    <!-- Mask Fit Detail -->
-                    <div id="mask-fit-check-detail" class="hidden border-b pb-2">
-                        <h3 class="text-lg font-bold text-primary-blue">Mask Fit</h3>
-                        <p id="mask-fit-checkcode-detail" class="text-sm text-gray-700 mt-1">
-                            Checkcode: <span class="font-semibold text-primary-blue">None Selected</span>
-                            <span class="float-right text-xs text-text-gray">Renewal</span>
-                        </p>
+
+                    <!-- NEW MASK SHIPPING TILE (Hidden by default) -->
+                    <div id="mask-shipping-tile" class="hidden shipping-card bg-[#f8fafc] rounded-xl overflow-hidden p-6 flex flex-col justify-center mt-8 border border-gray-100">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <h3 class="text-lg font-bold text-gray-900">Mask Shipping</h3>
+                        </div>
+                        <div id="mask-shipping-product-name" class="text-base font-semibold text-gray-800"></div>
+                        <div class="text-sm text-gray-400">Product Check Code</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Total & Main Action Buttons -->
-        <div class="flex justify-between items-end pt-4 mt-8 border-t">
-            <div>
-                <div class="text-lg font-bold text-gray-800">Total Package: $25.30</div>
-                <p class="text-xs text-text-gray mt-1">*Package Cost Does Not Include Pass-Through, Health Screening Fees, And Taxes.</p>
-            </div>
-            <div class="flex space-x-3">
-                <button class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition duration-150">Cancel</button>
-                <!-- Main Page NEXT button (initially disabled, enables on modify) -->
-                <button id="main-page-next-btn" class="px-6 py-2 bg-gray-300 text-white font-semibold rounded-lg cursor-not-allowed transition duration-150" disabled>Next ></button>
+        <!-- Footer: Total & Actions -->
+        <div class="mt-8 pt-4 border-t border-gray-200 w-full">
+            <div class="flex flex-col items-end">
+                <div class="text-lg font-bold text-gray-800">Total Package*: <span class="text-green-600">$13.20</span></div>
+                <p class="text-xs text-text-gray mt-1 mb-4">*Package Cost Does Not Include Pass-Through, Health Screening Fees, And Taxes.</p>
+                
+                <div class="flex space-x-3">
+                    <button class="px-6 py-2 border border-blue-500 text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition duration-150 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        Cancel
+                    </button>
+                    <!-- Main Page NEXT button -->
+                    <button id="main-page-next-btn" class="px-6 py-2 bg-[#93c5fd] text-white font-semibold rounded-lg cursor-not-allowed transition duration-150 flex items-center" disabled>
+                        Next 
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -289,30 +280,28 @@
             </div>
         </div>
 
-        <!-- DYNAMIC MASK FIT SECTION -->
-        <div id="additional-mask-fit-section" class="hidden border rounded-lg bg-white p-6 shadow-sm border-primary-blue ring-1 ring-primary-blue/30">
+        <!-- DYNAMIC MASK SHIPPING SECTION -->
+        <div id="additional-mask-shipping-section" class="hidden border rounded-lg bg-white p-6 shadow-sm border-primary-blue ring-1 ring-primary-blue/30">
              <div class="flex justify-between items-center mb-4">
                 <div class="flex items-center space-x-2">
-                    <span class="font-bold text-gray-800 text-lg">Additional Mask Fit Information</span>
+                    <span class="font-bold text-gray-800 text-lg">Additional Mask Shipping Information</span>
                     <span class="bg-blue-100 text-primary-blue text-xs font-semibold px-2 py-0.5 rounded-full">Required</span>
                 </div>
             </div>
             
             <!-- Grid for inputs -->
             <div class="grid grid-cols-12 gap-4 items-start">
-                <!-- Category Column -->
-                <div class="col-span-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
-                    <select class="w-full border border-gray-300 rounded-md p-2.5 text-sm bg-white focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-shadow">
-                        <option value="kits">Maskfit Kits</option>
-                        <option value="drugs">Onsite Drugs</option>
-                    </select>
+                
+                <!-- Supplies Category (Read Only) -->
+                <div class="col-span-3">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Supplies Category</label>
+                    <input type="text" value="Maskshipping" readonly class="w-full border border-gray-300 rounded-md p-2.5 text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
                 </div>
 
                 <!-- Product Name Column (Check Codes) -->
-                <div class="col-span-6">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Product Name (Check Code)</label>
-                    <select id="mask-fit-product-select" class="w-full border border-gray-300 rounded-md p-2.5 text-sm bg-white focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-shadow">
+                <div class="col-span-7">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Product Name</label>
+                    <select id="mask-shipping-product-select" class="w-full border border-gray-300 rounded-md p-2.5 text-sm bg-white focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-shadow">
                         <!-- Populated via JS -->
                     </select>
                 </div>
@@ -322,6 +311,19 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Units</label>
                     <input type="number" value="1" min="1" class="w-full border border-gray-300 rounded-md p-2.5 text-sm focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-shadow text-center">
                 </div>
+
+                <!-- Shipping Address -->
+                <div class="col-span-6 mt-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Shipping Address</label>
+                    <input type="text" placeholder="Candidate or client location" class="w-full border border-gray-300 rounded-md p-2.5 text-sm bg-white focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-shadow">
+                </div>
+
+                <!-- Notes -->
+                <div class="col-span-6 mt-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Notes</label>
+                    <input type="text" placeholder="Free text" class="w-full border border-gray-300 rounded-md p-2.5 text-sm bg-white focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-shadow">
+                </div>
+
             </div>
             
             <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end">
@@ -359,7 +361,7 @@
             <div class="flex border-b text-sm font-medium text-text-gray px-6">
                 <button id="tab-background" data-tab="background" class="tab-button relative py-3 px-4 hover:text-primary-blue transition duration-150">Background Screening<div class="tab-indicator"></div></button>
                 <button id="tab-health" data-tab="health" class="tab-button relative py-3 px-4 hover:text-primary-blue transition duration-150">Health Screening<div class="tab-indicator"></div></button>
-                <button id="tab-maskfit" data-tab="maskfit" class="tab-button relative py-3 px-4 hover:text-primary-blue transition duration-150 tab-active text-primary-blue">Mask Fit<div class="tab-indicator"></div></button>
+                <button id="tab-mask-shipping" data-tab="mask-shipping" class="tab-button relative py-3 px-4 hover:text-primary-blue transition duration-150 tab-active text-primary-blue">Mask Shipping<div class="tab-indicator"></div></button>
             </div>
 
             <!-- Tab Content -->
@@ -378,14 +380,14 @@
         const checkCodes = ['3M 1860', '3M 1860 SMALL', '3M 1870+', '3M 8210', 'HAYLARD REGULAR 46727', 'HAYLARD SMALL 46827'];
         
         // --- State ---
-        let activeTab = 'maskfit';
+        let activeTab = 'mask-shipping';
         let selectedCheckCode = null; // Can be null or string
 
         // --- Elements ---
         // Views
         const viewPackageSelect = document.getElementById('view-package-select');
         const viewAdditionalInfo = document.getElementById('view-additional-info');
-        const additionalMaskFitSection = document.getElementById('additional-mask-fit-section');
+        const additionalMaskShippingSection = document.getElementById('additional-mask-shipping-section');
         const mainPageNextBtn = document.getElementById('main-page-next-btn');
         const backToView1Btn = document.getElementById('back-to-view-1');
 
@@ -400,15 +402,16 @@
         const tabButtons = document.querySelectorAll('.tab-button');
         
         // Main Page Indicators
-        const checkItemMaskFit = document.getElementById('check-item-maskfit');
-        const maskFitCheckDetail = document.getElementById('mask-fit-check-detail');
-        const maskFitCheckcodeDetail = document.getElementById('mask-fit-checkcode-detail');
-        const maskFitProductSelect = document.getElementById('mask-fit-product-select');
+        const checkItemMaskShipping = document.getElementById('check-item-mask-shipping');
+        const maskShippingTile = document.getElementById('mask-shipping-tile');
+        const maskShippingProductName = document.getElementById('mask-shipping-product-name');
+        
+        const maskShippingProductSelect = document.getElementById('mask-shipping-product-select');
 
         // --- Initialization ---
         function init() {
             // Populate View 2 Dropdown with check codes
-            maskFitProductSelect.innerHTML = checkCodes.map(code => `<option value="${code}">${code}</option>`).join('');
+            maskShippingProductSelect.innerHTML = checkCodes.map(code => `<option value="${code}">${code}</option>`).join('');
         }
 
         // --- Modal Logic ---
@@ -435,8 +438,8 @@
         }
         
         function updateModalNextButton() {
-            // Always enabled on Mask Fit tab to allow confirming deselection
-            const isEnabled = activeTab === 'maskfit';
+            // Always enabled on Mask Shipping tab to allow confirming deselection
+            const isEnabled = activeTab === 'mask-shipping';
             modalNextButton.disabled = !isEnabled;
             modalNextButton.classList.toggle('bg-gray-300', !isEnabled);
             modalNextButton.classList.toggle('cursor-not-allowed', !isEnabled);
@@ -459,7 +462,7 @@
 
         function renderTabContent() {
             tabContent.innerHTML = '';
-            if (activeTab === 'maskfit') {
+            if (activeTab === 'mask-shipping') {
                 let html = `<div class="text-xl font-bold text-gray-800 mb-4">Select A Product Checkcode</div><div class="space-y-2">`;
                 checkCodes.forEach(code => {
                     const isChecked = selectedCheckCode === code;
@@ -483,24 +486,26 @@
         function updateMainPage() {
             // 1. Update Indicators
             if (selectedCheckCode) {
-                checkItemMaskFit.classList.remove('hidden');
-                maskFitCheckDetail.classList.remove('hidden');
-                maskFitCheckcodeDetail.innerHTML = `Checkcode: <span class="font-semibold text-primary-blue">${selectedCheckCode}</span><span class="float-right text-xs text-text-gray">Renewal</span>`;
+                checkItemMaskShipping.classList.remove('hidden'); // Show nav item
+                maskShippingTile.classList.remove('hidden'); // Show Tile
+                
+                // Update Tile Content
+                maskShippingProductName.textContent = selectedCheckCode;
                 
                 // Update View 2 Dropdown to match selection
-                maskFitProductSelect.value = selectedCheckCode;
+                maskShippingProductSelect.value = selectedCheckCode;
                 
-                showToast('Package updated with Mask Fit!');
+                showToast('Package updated with Mask Shipping!');
             } else {
-                checkItemMaskFit.classList.add('hidden');
-                maskFitCheckDetail.classList.add('hidden');
-                showToast('Mask Fit removed.');
+                checkItemMaskShipping.classList.add('hidden');
+                maskShippingTile.classList.add('hidden');
+                showToast('Mask Shipping removed.');
             }
 
             // 2. Enable Main Page Next Button (Assume enabled if ANY modification happened or just generally enabled after modify flow)
             mainPageNextBtn.disabled = false;
-            mainPageNextBtn.classList.remove('bg-gray-300', 'cursor-not-allowed');
-            mainPageNextBtn.classList.add('bg-primary-blue', 'hover:bg-blue-700');
+            mainPageNextBtn.classList.remove('bg-[#93c5fd]', 'cursor-not-allowed'); // Remove disabled color
+            mainPageNextBtn.classList.add('bg-primary-blue', 'hover:bg-blue-700'); // Add active color
 
             closeModal();
         }
@@ -513,11 +518,11 @@
             // Prepare View 2
             viewAdditionalInfo.classList.remove('hidden');
             
-            // Logic: Show Mask Fit Section only if selected
+            // Logic: Show Mask Shipping Section only if selected
             if (selectedCheckCode) {
-                additionalMaskFitSection.classList.remove('hidden');
+                additionalMaskShippingSection.classList.remove('hidden');
             } else {
-                additionalMaskFitSection.classList.add('hidden');
+                additionalMaskShippingSection.classList.add('hidden');
             }
             
             // Scroll to top
@@ -550,7 +555,7 @@
         
         // Modal Next -> Updates Main Page
         modalNextButton.addEventListener('click', () => {
-            if(activeTab === 'maskfit') updateMainPage();
+            if(activeTab === 'mask-shipping') updateMainPage();
         });
 
         // Main Page Next -> Goes to View 2
